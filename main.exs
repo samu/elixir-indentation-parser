@@ -21,32 +21,60 @@ defmodule IndentationParser do
 
   def run(stream) do
     [head | tail] = read_lines(stream)
-    process_line(tail, [head])
+    process_line(tail, head)
   end
 
   def process_line([], _) do
     IO.inspect "done"
+    []
   end
 
-  def process_line(lines, stack) do
-    [next_line | tail] = lines
+  # if indentation of previous line is less, continue building the stack
+  # by calling recursion
+  # if indentation of previous line is the same, dont continue building the
+  # stack by calling recursion. instead, return control back to line that
+  # has less indentation.
+  # in every recursion step, recursion needs to be called as long as
+  # the line ahead has greater indentation than the current one.
 
-    get_indentation_difference(hd(stack), next_line)
-      |> handle_indentation(next_line, hd(stack))
+  def process_line(lines, previous_line) do
+    [current_line | tail] = lines
 
-    process_line(tail, [next_line | stack])
+    diff = get_indentation_difference(previous_line, current_line)
+    lines = handle_indentation(diff, lines, previous_line, current_line)
+
+    if  diff < 0 do
+      process_line(lines, previous_line)
+    end
+
+    lines
   end
 
-  def handle_indentation(diff, line, stack_head) when diff < 0 do
-    IO.inspect "top < current"
+  def handle_indentation(diff, lines, previous_line, current_line) when diff < 0 do
+    IO.inspect "--- top < current"
+    IO.inspect previous_line
+    IO.inspect current_line
+    IO.inspect "------------------"
+    IO.inspect ""
+    process_line(tl(lines), current_line)
   end
 
-  def handle_indentation(diff, line, stack_head) when diff > 0 do
-    IO.inspect "top > current"
+  def handle_indentation(diff, lines, previous_line, current_line) when diff > 0 do
+    # IO.inspect "--- top > current"
+    # IO.inspect previous_line
+    # IO.inspect current_line
+    # IO.inspect "------------------"
+    # IO.inspect ""
+    lines
   end
 
-  def handle_indentation(diff, line, stack_head) do
-    IO.inspect "top = current"
+  def handle_indentation(diff, lines, previous_line, current_line) do
+    # IO.inspect "--- top = current"
+    # IO.inspect previous_line
+    # IO.inspect current_line
+    # IO.inspect "------------------"
+    # IO.inspect ""
+    lines
   end
 
   def set_up_handler(handlers, regex, callback) do
