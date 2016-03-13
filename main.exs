@@ -44,7 +44,7 @@ defmodule IndentationParser do
     lines = handle_indentation(diff, lines, previous_line, current_line)
 
     if  diff < 0 do
-      process_line(lines, previous_line)
+      lines = process_line(lines, previous_line)
     end
 
     lines
