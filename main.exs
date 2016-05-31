@@ -6,13 +6,15 @@ stack = []
 
 defmodule IndentationParser do
   def read_lines(stream) do
-    Enum.map stream, fn(line)  ->
-      length = ~r/^[ ]*/
-        |> Regex.run(line)
-        |> hd
-        |> String.length
-      %{length: length, line: line}
-    end
+    stream
+    |>  Enum.with_index
+    |>  Enum.map fn({line, index}) ->
+          length = ~r/^[ ]*/
+          |>  Regex.run(line)
+          |>  hd
+          |>  String.length
+          %{length: length, line: line, index: index}
+        end
   end
 
   def get_indentation_difference(a, b) do
@@ -28,14 +30,6 @@ defmodule IndentationParser do
     IO.inspect "done"
     []
   end
-
-  # if indentation of previous line is less, continue building the stack
-  # by calling recursion
-  # if indentation of previous line is the same, dont continue building the
-  # stack by calling recursion. instead, return control back to line that
-  # has less indentation.
-  # in every recursion step, recursion needs to be called as long as
-  # the line ahead has greater indentation than the current one.
 
   def process_line(lines, previous_line) do
     [current_line | tail] = lines
@@ -60,20 +54,16 @@ defmodule IndentationParser do
   end
 
   def handle_indentation(diff, lines, previous_line, current_line) when diff > 0 do
-    # IO.inspect "--- top > current"
-    # IO.inspect previous_line
-    # IO.inspect current_line
-    # IO.inspect "------------------"
-    # IO.inspect ""
+    if current_line.index - previous_line.index == 1 do
+      IO.inspect "found a leaf node! #{previous_line.line}"
+    end
     lines
   end
 
   def handle_indentation(diff, lines, previous_line, current_line) do
-    # IO.inspect "--- top = current"
-    # IO.inspect previous_line
-    # IO.inspect current_line
-    # IO.inspect "------------------"
-    # IO.inspect ""
+    if current_line.index - previous_line.index == 1 do
+      IO.inspect "found a leaf node! #{previous_line.line}"
+    end
     lines
   end
 
